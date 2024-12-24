@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.component }}
+  labels:
+    appName: {{ .Values.component }}
+    projectName: {{ .Chart.Name }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      appName: {{ .Values.component }}
+      projectName: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        appName: {{ .Values.component }}
+        projectName: {{ .Chart.Name }}
+    spec:
+    {{ if .Values.initContainers.enabled }}
+    volumes:
+      - name: vault
+        emptyDir:
+          sizeLimit: 5Mi
+    {{ if .Values.initContainers.vault_init_container_enabled }}
+    initContainers:
+      - name: {{ .Values.component }}-vault
+        image: 633788536644.dkr.ecr.us-east-1.amazonaws.com/vault-init-container:v5
+        env:
+          - name: VAULT_ADDR
+            value: "https://vault-internal.devopssz14.online:8200"
+          - name: VAULT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: vault-token
+                key: token
+          - name: SECRET_NAME
+            value: {{ .Chart.Name }}-dev/{{ .Values.component }}
+          - name: VAULT_SKIP_VERIFY
+          value: "TRUE"
+        volumeMounts:
+          - mountPath: /data
+            name: vault
+      {{ end }}
+    {{ end }}
+    nodeSelector:
+      appType: {{ .Values.node.appType }}
+    containers:
+      - name: {{ .Values.component }}
+        image: 633788536644.dkr.ecr.us-east-1.amazonaws.com/{{ .Chart.Name }}-{{ .Values.component }}:{{ .Values.appVersion }}
+        {{- with .Values.resources }}
+        resources:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{ if .Values.healthcheck.enabled }}
+        livenessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          httpGet:
+            path: /health
+            port: {{ .Values.service.port }}
+        readinessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          httpGet:
+            path: /health
+            port: {{ .Values.service.port }}
+      {{ end }}
+    {{ if .Values.initContainers.enabled }}
+    volumeMounts:
+      - mountPath: /data
+        name: vault
+    {{ end }}

@@ -1,0 +1,32 @@
+initContainers:
+  enabled: true
+  vault_init_container_enabled: true
+
+schema:
+  enabled: true
+  db_type: mysql
+
+deployment:
+  replicas: 2
+
+component: shipping
+appVersion: 2.0.7
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+ingress:
+  enabled: false
+
+resources:
+  requests:
+    memory: "7Gi"
+    cpu: "900m"
+  limits:
+    memory: "8Gi"
+    cpu: "1500m"
+
+node:
+  appType: memory-intensive

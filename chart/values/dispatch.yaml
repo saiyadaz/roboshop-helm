@@ -1,0 +1,23 @@
+initContainers:
+  enabled: true
+  vault_init_container_enabled: true
+
+component: dispatch
+appVersion: 2.0.1
+
+service:
+  enabled: false
+
+ingress:
+  enabled: false
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "200m"
+
+healthcheck:
+  enabled: false

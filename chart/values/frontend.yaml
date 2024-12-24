@@ -1,0 +1,10 @@
+initContainers:
+  enabled: false
+component: frontend
+projectName: expense
+appVersion: latest
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 80
