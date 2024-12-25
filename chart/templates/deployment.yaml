@@ -35,9 +35,9 @@ spec:
                 name: vault-token
                 key: token
           - name: SECRET_NAME
-            value: {{ .Chart.Name }}-dev/{{ .Values.component }}
+            value: { { .Chart.Name } }-dev/{{ .Values.component }}
           - name: VAULT_SKIP_VERIFY
-          value: "TRUE"
+            value: "TRUE"
         volumeMounts:
           - mountPath: /data
             name: vault
@@ -48,11 +48,11 @@ spec:
     containers:
       - name: {{ .Values.component }}
         image: 633788536644.dkr.ecr.us-east-1.amazonaws.com/{{ .Chart.Name }}-{{ .Values.component }}:{{ .Values.appVersion }}
-        {{- with .Values.resources }}
+         {{- with .Values.resources }}
         resources:
           {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{ if .Values.healthcheck.enabled }}
+         {{- end }}
+         {{ if .Values.healthcheck.enabled }}
         livenessProbe:
           initialDelaySeconds: 5
           periodSeconds: 5
