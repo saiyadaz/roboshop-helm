@@ -1,7 +1,7 @@
 initContainers:
   enabled: false
 component: frontend
-projectName: expense
+projectName: roboshop
 appVersion: latest
 
 service:
