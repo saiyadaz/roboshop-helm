@@ -1,0 +1,73 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kibana
+  namespace: elastic-stack
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: kibana-dev.devopssz14.online
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: kibana-dev.rdevops6a.online
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: elk-eck-kibana-kb-http
+                port:
+                  number: 5601
+            path: /
+
+---
+apiVersion: logstash.k8s.elastic.co/v1alpha1
+kind: Logstash
+metadata:
+  name: logstash
+  namespace: elastic-stack
+spec:
+  count: 1
+  elasticsearchRefs:
+    - name: elasticsearch
+      clusterName: qs
+  version: 8.14.0
+  pipelines:
+    - pipeline.id: main
+      config.string: |
+        input {
+          beats {
+            port => 5044
+          }
+        }
+
+        filter {
+          if [kubernetes][container][name] == "frontend" {
+            grok {
+              match => { "message" => "%{IP:source_ip}%{SPACE}%{HTTPDATE:http_date}%{SPACE}%{WORD:http_method}%{SPACE}%{PATH:http_path}%{SPACE}%{WORD}/%{NUMBER}%{SPACE}%{NUMBER:http_status:int}%{SPACE}%{NUMBER:http_reponse_bytes:int}%{SPACE}(%{URI:http_url}|-)%{SPACE}%{NUMBER:response_time:float}" }
+            }
+            if [http_path] =~ "//api/ratings*" {
+              drop {}
+            }
+          }
+        }
+        output {
+          elasticsearch {
+            hosts => [ "https://elasticsearch-es-http:9200" ]
+            user => "elastic"
+            password => "ES_PASSWORD"
+            ssl_verification_mode => "none"
+            index => "%{[kubernetes][container][name]}-%{+YYYY.MM.dd}"
+          }
+        }
+  services:
+    - name: beats
+      service:
+        spec:
+          type: NodePort
+          ports:
+            - port: 5044
+              name: "filebeat"
+              protocol: TCP
+              targetPort: 5044
+---
