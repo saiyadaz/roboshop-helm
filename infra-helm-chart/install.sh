@@ -11,7 +11,9 @@ while true ; do
   sleep 5
 done
 
-kubectl apply -f external-dns-dev.yaml
+#kubectl apply -f external-dns-dev.yaml
+helm repo add external https://kubernetes-sigs.github.io/external-dns/
+helm install external-dns external/external-dns --set serviceAccount.name=external-sa
 sleep 15
 
 kubectl create ns argocd
