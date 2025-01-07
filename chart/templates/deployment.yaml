@@ -35,7 +35,7 @@ spec:
                 name: vault-token
                 key: token
           - name: SECRET_NAME
-            value: {{ .Chart.Name } }-dev/{{ .Values.component }}
+            value: {{ .Chart.Name }}-dev/{{ .Values.component }}
           - name: VAULT_SKIP_VERIFY
             value: "TRUE"
         volumeMounts:

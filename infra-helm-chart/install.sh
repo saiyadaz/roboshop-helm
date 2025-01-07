@@ -8,12 +8,12 @@ while true ; do
   echo "Waiting for Load Balancer to come to Active"
   nslookup $LOAD_BALANCER &>/dev/null
   if [ $? -eq 0 ]; then break ; fi
-  sleep 5
+  sleep 5cd
 done
 
 #kubectl apply -f external-dns-dev.yaml
 helm repo add external https://kubernetes-sigs.github.io/external-dns/
-helm install external-dns external/external-dns --set serviceAccount.name=external-sa
+helm install external-dns external/external-dns --set 'serviceAccount.name'=external-dns
 sleep 15
 
 kubectl create ns argocd
