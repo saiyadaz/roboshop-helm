@@ -25,7 +25,7 @@ spec:
     {{ if .Values.initContainers.vault_init_container_enabled }}
     initContainers:
       - name: {{ .Values.component }}-vault
-        image: 633788536644.dkr.ecr.us-east-1.amazonaws.com/vault-init-container:v5
+        image: 058264231458.dkr.ecr.us-east-1.amazonaws.com/vault-init-container:v5
         env:
           - name: VAULT_ADDR
             value: "https://vault-internal.devopssz14.online:8200"
@@ -47,7 +47,7 @@ spec:
       appType: {{ .Values.node.appType }}
     containers:
       - name: {{ .Values.component }}
-        image: 633788536644.dkr.ecr.us-east-1.amazonaws.com/{{ .Chart.Name }}-{{ .Values.component }}:{{ .Values.appVersion }}
+        image: 058264231458.dkr.ecr.us-east-1.amazonaws.com/{{ .Chart.Name }}-{{ .Values.component }}:{{ .Values.appVersion }}
          {{- with .Values.resources }}
         resources:
           {{- toYaml . | nindent 12 }}
